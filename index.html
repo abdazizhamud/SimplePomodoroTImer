@@ -378,10 +378,34 @@ To deploy to Vercel:
 
     // ensure we set initial mode to whatever loaded state said
     if(mode) {
-      // if remaining was loaded as 0, normalize to full duration
       if(!remaining) remaining = (mode === 'work' ? config.work : mode === 'short' ? config.short : config.long) * 60
       updateUI()
+
+      // auto-resume if timer was active before reload
+      if(localStorage.getItem('pomodoro-running') === 'true') {
+        start()
+      }
     }
+
+    // whenever we start/pause, remember running state
+    function start(){
+      if(running) return
+      running = true
+      localStorage.setItem('pomodoro-running', 'true')
+      timer = setInterval(tick,1000)
+      updateUI()
+      save()
+    }
+
+    function pause(){
+      running = false
+      localStorage.setItem('pomodoro-running', 'false')
+      clearInterval(timer)
+      timer = null
+      updateUI()
+      save()
+    }
+
 
     // save periodically (in case)
     setInterval(save, 5000)
